@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promo Aguinaldo – Óptica Joali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a5f5f;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    padding: 20px 12px 40px;
+  }
+  .app { width: 100%; max-width: 420px; }
+  .confetti-layer { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; z-index: 100; }
+
+  .header { text-align: center; padding: 20px 0 8px; }
+  .logo-optica { font-size: 11px; letter-spacing: 4px; color: #ffd700; text-transform: uppercase; }
+  .logo-joali { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: #ffd700; line-height: 1; }
+  .promo-badge { background: #ffd700; color: #0a4a4a; font-size: 11px; font-weight: 900; letter-spacing: 3px; padding: 3px 18px; border-radius: 4px; display: inline-block; margin: 4px 0 2px; }
+  .title-aguinaldo { font-family: 'Bebas Neue', sans-serif; font-size: 50px; color: white; line-height: 1; text-shadow: 3px 3px 0 rgba(0,0,0,0.25); letter-spacing: 2px; }
+  .subtitle { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 4px; }
+
+  .wheel-area { display: flex; flex-direction: column; align-items: center; margin: 14px 0 6px; }
+  .wheel-wrap { position: relative; width: 280px; height: 280px; }
+  .pointer-wrap { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 5; }
+  .pointer-head { width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 26px solid #ffd700; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+  canvas#wheel { display: block; border-radius: 50%; box-shadow: 0 0 0 10px #ffd700, 0 0 0 18px #0a4a4a, 0 10px 40px rgba(0,0,0,0.5); }
+
+  .spin-btn { margin-top: 18px; background: #ffd700; color: #0a4a4a; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; padding: 12px 54px; border-radius: 50px; cursor: pointer; box-shadow: 0 5px 0 #a07800; transition: transform 0.1s, box-shadow 0.1s; }
+  .spin-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 #a07800; }
+  .spin-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #a07800; }
+  .spin-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .result-panel { background: rgba(0,0,0,0.28); border: 1.5px solid rgba(255,215,0,0.35); border-radius: 16px; padding: 18px 18px 14px; margin: 10px 0; text-align: center; display: none; animation: fadeUp 0.4s ease; }
+  .result-panel.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  .result-big { font-family: 'Bebas Neue', sans-serif; font-size: 70px; color: #ffd700; line-height: 1; letter-spacing: 2px; }
+  .result-desc { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 14px; }
+  .form-label { font-size: 11px; color: rgba(255,215,0,0.85); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; display: block; text-align: left; }
+  .form-row { display: flex; gap: 8px; }
+  .form-row input { flex: 1; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,215,0,0.4); border-radius: 10px; color: white; font-family: 'Nunito', sans-serif; font-size: 15px; padding: 10px 13px; outline: none; transition: border-color 0.2s; }
+  .form-row input::placeholder { color: rgba(255,255,255,0.38); }
+  .form-row input:focus { border-color: #ffd700; }
+  .save-btn { background: #ffd700; color: #0a4a4a; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 14px; padding: 10px 16px; cursor: pointer; white-space: nowrap; }
+  .save-btn:hover { background: #ffe135; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .saved-ok { margin-top: 9px; font-size: 13px; color: #aaffcc; display: none; }
+  .saved-ok.show { display: block; }
+  .save-error { margin-top: 9px; font-size: 13px; color: #ffaaaa; display: none; }
+  .save-error.show { display: block; }
+
+  .records-section { margin-top: 10px; }
+  .rec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .rec-title { font-size: 11px; color: rgba(255,215,0,0.8); letter-spacing: 1px; text-transform: uppercase; }
+  .rec-count { font-size: 11px; color: rgba(255,255,255,0.35); }
+  .rec-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .rec-item { background: rgba(0,0,0,0.22); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; animation: fadeUp 0.3s ease; }
+  .rec-name { font-weight: 700; font-size: 14px; }
+  .rec-meta { font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+  .rec-pct { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: #ffd700; }
+  .rec-empty { font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; padding: 16px; }
+  .rec-loading { font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; padding: 16px; }
+
+  .footer { text-align: center; padding: 14px 0 0; font-size: 11px; color: rgba(255,255,255,0.3); }
+  .footer strong { color: rgba(255,215,0,0.45); }
+</style>
+</head>
+<body>
+<div class="confetti-layer" id="confettiLayer"></div>
+<div class="app">
+
+  <div class="header">
+    <div class="promo-badge">P R O M O</div>
+    <div class="title-aguinaldo">AGUINALDO</div>
+    <p class="subtitle">Girá y ganá hasta <strong style="color:#ffd700">50% off</strong> en tu compra</p>
+  </div>
+
+  <div class="wheel-area">
+    <div class="wheel-wrap">
+      <div class="pointer-wrap"><div class="pointer-head"></div></div>
+      <canvas id="wheel" width="280" height="280"></canvas>
+    </div>
+    <button class="spin-btn" id="spinBtn">¡ G I R A R !</button>
+  </div>
+
+  <div class="result-panel" id="resultPanel">
+    <div class="result-big" id="resultBig">25%</div>
+    <div class="result-desc">de descuento en tu compra 🎉</div>
+    <label class="form-label">Tu nombre y apellido</label>
+    <div class="form-row">
+      <input type="text" id="nameInput" placeholder="Ej: María González" autocomplete="name" />
+      <button class="save-btn" id="saveBtn">Guardar</button>
+    </div>
+    <div class="saved-ok" id="savedOk">✅ ¡Registrado! Presentate en la óptica con tu cédula.</div>
+    <div class="save-error" id="saveError">⚠️ Error al guardar. Intentá de nuevo.</div>
+  </div>
+
+  <div class="records-section">
+    <div class="rec-header">
+      <span class="rec-title">Participantes</span>
+      <span class="rec-count" id="recCount"></span>
+    </div>
+    <div class="rec-list" id="recList"><div class="rec-loading">Cargando...</div></div>
+  </div>
+
+  <div class="footer">Solo por <strong>Junio 2026</strong> · Óptica Joali</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://vgvknfdodxqwnhyveyuv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmtuZmRvZHhxd25oeXZleXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMjgyMjksImV4cCI6MjA5NTkwNDIyOX0.UpIP65n9rA6l1NCnxlmFwqB4ujduJo5y7HWL4dOWSWQ';
+const HEADERS = { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+
+const SEGMENTS = [0,5,10,15,20,25,30,35,40,45,50];
+const N = SEGMENTS.length;
+const ARC = (2*Math.PI)/N;
+
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const spinBtn = document.getElementById('spinBtn');
+const resultPanel = document.getElementById('resultPanel');
+const resultBig = document.getElementById('resultBig');
+const nameInput = document.getElementById('nameInput');
+const saveBtn = document.getElementById('saveBtn');
+const savedOk = document.getElementById('savedOk');
+const saveError = document.getElementById('saveError');
+
+let angle = 0, spinning = false, lastResult = null, alreadySaved = false;
+
+function drawWheel(a) {
+  const cx=140, cy=140, r=128;
+  ctx.clearRect(0,0,280,280);
+  for(let i=0;i<N;i++){
+    const s = a + i*ARC - Math.PI/2;
+    const e = s + ARC;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,e); ctx.closePath();
+    ctx.fillStyle = i%2===0 ? '#1a7575' : '#ffd700'; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(s+ARC/2);
+    ctx.textAlign='right';
+    ctx.fillStyle = i%2===0 ? '#ffd700' : '#0a4a4a';
+    ctx.font='bold 15px "Bebas Neue",sans-serif';
+    ctx.fillText(SEGMENTS[i]+'%', r-12, 6);
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,26,0,2*Math.PI);
+  ctx.fillStyle='#ffd700'; ctx.fill();
+  ctx.strokeStyle='#0a4a4a'; ctx.lineWidth=3; ctx.stroke();
+  ctx.fillStyle='#0a4a4a'; ctx.font='bold 22px Arial';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('★',cx,cy);
+}
+
+function getResult(a){
+  const norm=(((-a%(2*Math.PI))+(2*Math.PI))%(2*Math.PI));
+  return SEGMENTS[Math.floor(norm/ARC)%N];
+}
+
+function spin(){
+  if(spinning||alreadySaved) return;
+  spinning=true; spinBtn.disabled=true;
+  resultPanel.classList.remove('show');
+  savedOk.classList.remove('show'); saveError.classList.remove('show');
+  nameInput.value=''; nameInput.disabled=false; saveBtn.disabled=false;
+
+  const extra=(7+Math.floor(Math.random()*5))*2*Math.PI;
+  const rand=Math.random()*2*Math.PI;
+  const target=angle+extra+rand;
+  const dur=4500, t0=performance.now(), a0=angle;
+
+  function step(now){
+    const t=Math.min((now-t0)/dur,1);
+    const ease=1-Math.pow(1-t,4);
+    angle=a0+(target-a0)*ease;
+    drawWheel(angle);
+    if(t<1){requestAnimationFrame(step);return;}
+    angle=target%(2*Math.PI); drawWheel(angle);
+    spinning=false; spinBtn.disabled=false;
+    lastResult=getResult(angle);
+    resultBig.textContent=lastResult+'%';
+    resultPanel.classList.add('show');
+    if(lastResult>0) doConfetti();
+  }
+  requestAnimationFrame(step);
+}
+
+async function saveRecord(){
+  const name=nameInput.value.trim();
+  if(!name){nameInput.focus();return;}
+  if(lastResult===null) return;
+
+  saveBtn.disabled=true;
+  saveError.classList.remove('show');
+
+  try {
+    const res = await fetch(SUPABASE_URL+'/rest/v1/participantes', {
+      method: 'POST',
+      headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ nombre: name, porcentaje: lastResult })
+    });
+    if(!res.ok) throw new Error('Error '+res.status);
+    savedOk.classList.add('show');
+    nameInput.disabled=true;
+    alreadySaved=true; spinBtn.disabled=true;
+    loadRecords();
+  } catch(e) {
+    saveError.classList.add('show');
+    saveBtn.disabled=false;
+  }
+}
+
+async function loadRecords(){
+  const list=document.getElementById('recList');
+  const countEl=document.getElementById('recCount');
+  try {
+    const res = await fetch(
+      SUPABASE_URL+'/rest/v1/participantes?select=nombre,porcentaje,fecha&order=fecha.desc&limit=50',
+      { headers: HEADERS }
+    );
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    countEl.textContent = data.length ? data.length+(data.length===50?'+':'')+' participantes' : '';
+    if(!data.length){
+      list.innerHTML='<div class="rec-empty">Aún no hay participantes</div>';
+      return;
+    }
+    list.innerHTML=data.map(r=>{
+      const d = new Date(r.fecha);
+      const fecha = d.toLocaleDateString('es-UY');
+      const hora  = d.toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'});
+      return `<div class="rec-item">
+        <div>
+          <div class="rec-name">${esc(r.nombre)}</div>
+          <div class="rec-meta">${fecha} ${hora}</div>
+        </div>
+        <div class="rec-pct">${r.porcentaje}%</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML='<div class="rec-empty">No se pudo cargar la lista</div>';
+  }
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function doConfetti(){
+  const layer=document.getElementById('confettiLayer');
+  layer.innerHTML='';
+  const cols=['#ffd700','#ffffff','#4ec9b0','#ff8c42'];
+  for(let i=0;i<50;i++){
+    const el=document.createElement('div');
+    const sz=6+Math.random()*8;
+    el.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};background:${cols[i%4]};left:${Math.random()*100}%;top:-12px;animation:cfall ${1.8+Math.random()*1.5}s linear ${Math.random()*.6}s forwards`;
+    layer.appendChild(el);
+  }
+  if(!document.getElementById('cfall-style')){
+    const s=document.createElement('style'); s.id='cfall-style';
+    s.textContent='@keyframes cfall{to{top:105%;transform:rotate(540deg) translateX(20px);opacity:0}}';
+    document.head.appendChild(s);
+  }
+  setTimeout(()=>{layer.innerHTML='';},4000);
+}
+
+spinBtn.addEventListener('click',spin);
+saveBtn.addEventListener('click',saveRecord);
+drawWheel(0);
+loadRecords();
+</script>
+</body>
+</html>
