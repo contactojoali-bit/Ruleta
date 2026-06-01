@@ -132,7 +132,8 @@ const saveBtn = document.getElementById('saveBtn');
 const savedOk = document.getElementById('savedOk');
 const saveError = document.getElementById('saveError');
 
-let angle = 0, spinning = false, lastResult = null, alreadySaved = false, hasSpun = false;
+let angle = 0, spinning = false, lastResult = null, alreadySaved = false;
+let hasSpun = sessionStorage.getItem('joali_spun') === '1';
 
 function drawWheel(a) {
   const cx=140, cy=140, r=128;
@@ -166,6 +167,7 @@ function getResult(a){
 function spin(){
   if(spinning||alreadySaved||hasSpun) return;
   hasSpun=true;
+  sessionStorage.setItem('joali_spun','1');
   spinning=true; spinBtn.disabled=true;
   resultPanel.classList.remove('show');
   savedOk.classList.remove('show'); saveError.classList.remove('show');
@@ -274,6 +276,7 @@ spinBtn.addEventListener('click',spin);
 saveBtn.addEventListener('click',saveRecord);
 drawWheel(0);
 loadRecords();
+if(hasSpun) spinBtn.style.display='none';
 </script>
 </body>
 </html>
