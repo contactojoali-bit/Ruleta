@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Promo Aguinaldo – Óptica Joali</title>
+<title>Promo Mitad de Año – Óptica Joali</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -78,8 +78,8 @@
 
   <div class="header">
     <div class="promo-badge">P R O M O</div>
-    <div class="title-aguinaldo">AGUINALDO</div>
-    <p class="subtitle">Girá y ganá hasta <strong style="color:#ffd700">50% off</strong> en tu compra</p>
+    <div class="title-aguinaldo">MITAD DE AÑO</div>
+    <p class="subtitle">¿Dijiste que este año cambiabas los lentes? <strong style="color:#ffd700">¡Esta promo es para vos!</strong></p>
   </div>
 
   <div class="wheel-area">
@@ -133,7 +133,7 @@ const savedOk = document.getElementById('savedOk');
 const saveError = document.getElementById('saveError');
 
 let angle = 0, spinning = false, lastResult = null, alreadySaved = false;
-let hasSpun = localStorage.getItem('joali_spun') === '1';
+let hasSpun = localStorage.getItem('joali_mitad_spun') === '1';
 
 function drawWheel(a) {
   const cx=140, cy=140, r=128;
@@ -167,7 +167,7 @@ function getResult(a){
 function spin(){
   if(spinning||alreadySaved||hasSpun) return;
   hasSpun=true;
-  localStorage.setItem('joali_spun','1');
+  localStorage.setItem('joali_mitad_spun','1');
   spinning=true; spinBtn.disabled=true;
   resultPanel.classList.remove('show');
   savedOk.classList.remove('show'); saveError.classList.remove('show');
